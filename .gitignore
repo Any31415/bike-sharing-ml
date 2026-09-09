@@ -1,6 +1,7 @@
 .idea/
 .venv/
-data/
+data/*
+!data/*.dvc
 *.pyc
 __pycache__/
 catboost_info/
