@@ -26,5 +26,5 @@ def health_check():
 
 @app.post("/predict")
 def get_prediction(features: BikeFeatures):
-    result = predict(model, features.dict())
+    result = predict(model, features.model_dump())
     return {"predicted_count": result}
