@@ -22,6 +22,15 @@ jobs:
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
 
+      - name: Install DVC
+        run: pip install "dvc[gdrive]"
+
+      - name: Pull data and model from DVC
+        run: |
+          echo '${{ secrets.GDRIVE_CREDENTIALS_DATA }}' > gdrive-credentials.json
+          dvc remote modify storage --local gdrive_service_account_json_file_path gdrive-credentials.json
+          dvc pull
+
       - name: Run tests
         run: pytest tests/ -v
 
