@@ -25,7 +25,7 @@ jobs:
       - name: Install DVC
         run: |
           pip install "dvc[gdrive]"
-          pip install -U pyOpenSSL cryptography
+          pip install "pyOpenSSL==24.2.1"
         
 
       - name: Pull data and model from DVC
