@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: Install DVC
+        run: |
+          pip install "dvc[gdrive]"
+          pip install "pyOpenSSL==24.2.1"
+        
+
+      - name: Pull data and model from DVC
+        run: |
+          echo '${{ secrets.GDRIVE_CREDENTIALS_DATA }}' > gdrive-credentials.json
+          dvc remote modify storage --local gdrive_service_account_json_file_path gdrive-credentials.json
+          dvc pull
+
+      - name: Run tests
+        run: pytest tests/ -v
+
+      - name: Log in to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ani31415/bike-sharing-api:latest
